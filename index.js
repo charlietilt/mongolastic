@@ -90,7 +90,7 @@ mongolastic.prototype.populate = function populate(doc, schema, options, callbac
   var elastic = getInstance();
 
   function populateReferences(options, currentpath, callback) {
-    if(options && options.ref) {
+    if(options && (options.ref || options.refPath)) {
       if(options.elastic && options.elastic.avoidpop ) {
         callback();
       } else {
@@ -115,6 +115,14 @@ mongolastic.prototype.populate = function populate(doc, schema, options, callbac
         if(options.type[0] && options.type[0].type) { // direct object references
           options = schema.paths[currentpath].options.type[0];
           populateReferences(options, currentpath, callback);
+        } else if(options.type[0].paths) {
+          async.each(Object.keys(options.type[0].paths), function(key, cb) {
+            var suboptions = options.type[0].paths[key].options;
+            var subpath = currentpath + '.' + key;
+            populateReferences(suboptions, subpath, cb);
+          }, function() {
+            callback();
+          });
         } else if(options.type[0]) {
           async.each(Object.keys(options.type[0]), function(key, cb) {
             var suboptions = options.type[0][key];
