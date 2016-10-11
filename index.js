@@ -586,7 +586,7 @@ mongolastic.prototype.search = function(query, callback) {
  */
 mongolastic.prototype.sync = function sync(model, modelname, callback) {
   var elastic = getInstance();
-  var stream = model.find().stream();
+  var stream = model.find().cursor();
   var schema = model.schema;
   var errcount = 0;
   var rescount = 0;
